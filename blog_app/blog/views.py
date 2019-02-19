@@ -8,6 +8,10 @@ from django.views.generic import (
     UpdateView,
     DeleteView
 )
+from django import forms
+from django.http import HttpResponseForbidden
+from django.urls import reverse
+from django.views.generic.edit import FormMixin
 from .models import Post
 
 # Create your views here.
@@ -39,8 +43,33 @@ class UserPostListView(ListView):
         return queryset
 
 
-class PostDetailView(DetailView):
+
+class PostDetailView(FormMixin, DetailView):
     model = Post
+    form_class = CommentForm 
+
+    def success_url(self):
+        return reverse('post-detail', kwargs={'pk': self.object.pk})
+
+    def context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.get_form()
+        return context
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden
+        self.object = self.get_object
+        form = self.get_form
+        print(form)
+        if form.is_valid():
+            form.save()
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form):
+        return super().form_valid(form)
+
     
 
 class PostCreateView(LoginRequiredMixin, CreateView):
