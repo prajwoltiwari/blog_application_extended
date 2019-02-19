@@ -14,7 +14,9 @@ from django.urls import reverse
 from django.views.generic.edit import FormMixin
 from .forms import CommentForm
 from .models import Post
-
+from django.shortcuts import HttpResponse, redirect
+from .models import Comment
+from django.http import HttpResponseRedirect
 # Create your views here.
 
 def home(request):
@@ -56,20 +58,24 @@ class PostDetailView(FormMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['form'] = self.get_form()
         return context
+
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return HttpResponseForbidden
         self.object = self.get_object
-        form = self.get_form
+        form = self.get_form()
         if form.is_valid():
-            return self.form_valid(form)
+            form.instance.author = self.request.user 
+            form.save()
+            return HttpResponseRedirect(self.request.path_info)
         else:
             return self.form_invalid(form)
 
     def form_valid(self, form):
-        new_comment = form.save(commit=False)
-        new_comment.post = self.get_object()
+        form.instance.author = self.request.user 
         return super().form_valid(form)
+
+    
 
 
 
@@ -116,12 +122,11 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 class PostLatestView(ListView):
     model = Post
     template_name = 'blog/post_latest.html'
-    ordering = ['-date_posted']
     
     def get(self, request, *args, **kwargs):
         user = User.objects.get(username=request.user)
         # queryset = Post.objects.filter(author=user).order_by('-date_posted')[:3]
-        queryset = Post.objects.all()[:3]
+        queryset = Post.objects.all().order_by('-date_posted')[:3]
         self.object_list = self.get_queryset()
         context = {
             'queryset':queryset
