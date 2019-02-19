@@ -12,6 +12,7 @@ from django import forms
 from django.http import HttpResponseForbidden
 from django.urls import reverse
 from django.views.generic.edit import FormMixin
+from .forms import CommentForm
 from .models import Post
 
 # Create your views here.
@@ -60,17 +61,17 @@ class PostDetailView(FormMixin, DetailView):
             return HttpResponseForbidden
         self.object = self.get_object
         form = self.get_form
-        print(form)
         if form.is_valid():
-            form.save()
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
 
     def form_valid(self, form):
+        new_comment = form.save(commit=False)
+        new_comment.post = self.get_object()
         return super().form_valid(form)
 
-    
+
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post

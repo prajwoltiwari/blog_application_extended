@@ -20,3 +20,6 @@ class Post(models.Model):
 
 class Comment(models.Model):
     comment = models.TextField(blank=True)
+    date_posted = models.DateTimeField(default=timezone.now)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    email = models.EmailField()
