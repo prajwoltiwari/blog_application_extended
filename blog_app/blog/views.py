@@ -9,6 +9,8 @@ from django.views.generic import (
     DeleteView
 )
 from django import forms
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.urls import reverse
 from django.views.generic.edit import FormMixin
@@ -59,6 +61,7 @@ class PostDetailView(FormMixin, DetailView):
         context['form'] = self.get_form()
         return context
 
+    @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return HttpResponseForbidden
