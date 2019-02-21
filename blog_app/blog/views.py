@@ -63,12 +63,15 @@ class PostDetailView(FormMixin, DetailView):
 
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
+        post = self.kwargs['pk']
+        form_post = Post.objects.get(id=post)
         if not request.user.is_authenticated:
             return HttpResponseForbidden
         self.object = self.get_object
         form = self.get_form()
         if form.is_valid():
             form.instance.author = self.request.user 
+            form.instance.post = form_post
             form.save()
             return HttpResponseRedirect(self.request.path_info)
         else:
