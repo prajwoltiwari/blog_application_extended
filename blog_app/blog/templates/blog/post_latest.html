@@ -11,7 +11,11 @@
                         <small class="text-muted">{{ object.date_posted|date:"F d, Y" }}</small>
                     </div>
                     <h2><a class="article-title" href="{% url 'post-detail' object.id %}">{{ object.title }}</a></h2>
-                    <p class="article-content">{{ object.content }}</p>
+                    {% if object.content|length >= 400 %}
+                        <p class="article-content">{{ object.content|safe|truncatechars:"400" }}<a href="{% url 'post-detail' object.id %}">read more</a></p>
+                    {% else %}
+                        <p class="article-content">{{ object.content }}</p>
+                    {% endif %}
                 </div>
             </article>
     {% endfor %}
