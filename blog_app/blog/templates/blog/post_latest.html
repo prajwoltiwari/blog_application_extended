@@ -12,7 +12,7 @@
                     </div>
                     <h2><a class="article-title" href="{% url 'post-detail' object.id %}">{{ object.title }}</a></h2>
                     {% if object.content|length >= 400 %}
-                        <p class="article-content">{{ object.content|safe|truncatechars:"400" }}<a href="{% url 'post-detail' object.id %}">read more</a></p>
+                        <p class="article-content">{{ object.content|safe|truncatechars:"300" }}<a href="{% url 'post-detail' object.id %}">read more</a></p>
                     {% else %}
                         <p class="article-content">{{ object.content }}</p>
                     {% endif %}
