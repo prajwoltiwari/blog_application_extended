@@ -131,7 +131,7 @@ class PostLatestView(ListView):
     template_name = 'blog/post_latest.html'
     
     def get(self, request, *args, **kwargs):
-        user = User.objects.get(username=request.user)
+        user = get_object_or_404(User, username=request.user)
         # queryset = Post.objects.filter(author=user).order_by('-date_posted')[:3]
         queryset = Post.objects.all().order_by('-date_posted')[:3]
         self.object_list = self.get_queryset()
